@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { Equipment } from '../../core/entities/Equipment';
 import type { IEquipmentRepository } from '../../core/interfaces/IEquipmentRepository';
 
-const API_URL = 'http://localhost:3000/equipments';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/equipments';
 
 export class ApiEquipmentRepository implements IEquipmentRepository {
   async getAll(): Promise<Equipment[]> {

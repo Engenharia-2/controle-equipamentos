@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import type { Equipment, EquipmentStatus } from '../../../core/entities/Equipment';
-import { IndexedDBEquipmentRepository } from '../../../infrastructure/repositories/IndexedDBEquipmentRepository';
+import { ApiEquipmentRepository } from '../../../infrastructure/repositories/ApiEquipmentRepository';
 
 export const useEquipamentosLogic = () => {
   const [equipments, setEquipments] = useState<Equipment[]>([]);
@@ -15,7 +15,7 @@ export const useEquipamentosLogic = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEquipment, setEditingEquipment] = useState<Equipment | null>(null);
   
-  const repository = useMemo(() => new IndexedDBEquipmentRepository(), []);
+  const repository = useMemo(() => new ApiEquipmentRepository(), []);
 
   const loadEquipments = async () => {
     try {

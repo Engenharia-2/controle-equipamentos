@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import type { Equipment } from '../../../../core/entities/Equipment';
-import { IndexedDBEquipmentRepository } from '../../../../infrastructure/repositories/IndexedDBEquipmentRepository';
+import { ApiEquipmentRepository } from '../../../../infrastructure/repositories/ApiEquipmentRepository';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import type { ChartData, ChartOptions } from 'chart.js';
 
@@ -8,7 +8,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 export const useEquipmentStatusLogic = () => {
   const [equipments, setEquipments] = useState<Equipment[]>([]);
-  const repository = useMemo(() => new IndexedDBEquipmentRepository(), []);
+  const repository = useMemo(() => new ApiEquipmentRepository(), []);
 
   useEffect(() => {
     const loadEquipments = async () => {
