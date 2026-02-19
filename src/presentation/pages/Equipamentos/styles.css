@@ -1,0 +1,43 @@
+.equipamentos-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.equipamentos-content {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.table-section {
+  flex: 1;
+  min-width: 0; /* Prevents table from breaking flex layout */
+}
+
+@media (max-width: 1024px) {
+  .equipamentos-content {
+    flex-direction: column;
+  }
+  .filters-container {
+    width: 100%;
+  }
+}
+
+.equipamentos-title-container h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.equipamentos-title-container p {
+  margin: 4px 0 0;
+  color: #888;
+}
+
+@media (max-width: 768px) {
+  .equipamentos-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+}

@@ -1,0 +1,38 @@
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  background-color: #1e1e1e;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #333;
+}
+
+.equipment-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.table-header {
+  background-color: #2a2a2a;
+  border-bottom: 2px solid #333;
+}
+
+.header-cell {
+  padding: 16px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #646cff;
+}
+
+@media (prefers-color-scheme: light) {
+  .table-container {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+  .table-header {
+    background-color: #f5f5f5;
+    border-bottom: 2px solid #eee;
+  }
+}

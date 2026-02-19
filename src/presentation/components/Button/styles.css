@@ -1,0 +1,44 @@
+.custom-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  font-size: 0.9rem;
+  margin: 1rem;
+}
+
+.button-primary {
+  background-color: #646cff;
+  color: white;
+}
+
+.button-primary:hover {
+  background-color: #535bf2;
+  transform: translateY(-1px);
+}
+
+.button-primary:active {
+  transform: translateY(0);
+}
+
+.button-secondary {
+  background-color: transparent;
+  border: 1px solid #646cff;
+  color: #646cff;
+}
+
+.button-secondary:hover {
+  background-color: rgba(100, 108, 255, 0.1);
+}
+
+@media (prefers-color-scheme: light) {
+  .button-secondary {
+    border: 1px solid #646cff;
+  }
+}
