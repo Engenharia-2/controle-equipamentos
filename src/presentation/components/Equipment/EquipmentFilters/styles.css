@@ -2,12 +2,13 @@
   display: flex;
   gap: 1rem;
   padding: 1rem;
-  background-color: #1e1e1e;
+  background-color: var(--card-bg);
   border-radius: 8px;
-  border: 1px solid #333;
+  border: 1px solid var(--border-color);
   margin-bottom: 1.5rem;
   align-items: center;
   flex-wrap: wrap;
+  transition: background-color 0.3s, border-color 0.3s;
 }
 
 .filter-group {
@@ -19,19 +20,20 @@
 .filter-label {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #646cff;
+  color: #076df2;
   white-space: nowrap;
 }
 
 .filter-select, .filter-input {
   padding: 8px 12px;
   border-radius: 4px;
-  border: 1px solid #333;
-  background-color: #2a2a2a;
-  color: white;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-color);
+  color: var(--text-color);
   font-size: 0.9rem;
   min-width: 150px;
   cursor: pointer;
+  transition: all 0.3s;
 }
 
 .search-input-wrapper {
@@ -54,7 +56,7 @@
 
 .filter-select:focus, .filter-input:focus {
   outline: none;
-  border-color: #646cff;
+  border-color: #076df2;
 }
 
 .clear-filters-btn {
@@ -70,16 +72,4 @@
 
 .clear-filters-btn:hover {
   color: #ff4d4d;
-}
-
-@media (prefers-color-scheme: light) {
-  .filters-container {
-    background-color: #fff;
-    border: 1px solid #ddd;
-  }
-  .filter-select {
-    background-color: #f9f9f9;
-    color: #333;
-    border: 1px solid #ddd;
-  }
 }

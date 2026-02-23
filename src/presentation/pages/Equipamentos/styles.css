@@ -24,14 +24,25 @@
   }
 }
 
+.equipamentos-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
 .equipamentos-title-container h1 {
   margin: 0;
   font-size: 2rem;
+  color: var(--text-color);
 }
 
 .equipamentos-title-container p {
   margin: 4px 0 0;
-  color: #888;
+  color: var(--text-color);
+  opacity: 0.7;
 }
 
 @media (max-width: 768px) {

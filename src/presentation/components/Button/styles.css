@@ -14,12 +14,12 @@
 }
 
 .button-primary {
-  background-color: #646cff;
+  background-color: #076df2;
   color: white;
 }
 
 .button-primary:hover {
-  background-color: #535bf2;
+  background-color: #076df2;
   transform: translateY(-1px);
 }
 
@@ -29,16 +29,10 @@
 
 .button-secondary {
   background-color: transparent;
-  border: 1px solid #646cff;
-  color: #646cff;
+  border: 1px solid #076df2;
+  color: #076df2;
 }
 
 .button-secondary:hover {
   background-color: rgba(100, 108, 255, 0.1);
-}
-
-@media (prefers-color-scheme: light) {
-  .button-secondary {
-    border: 1px solid #646cff;
-  }
 }

@@ -8,7 +8,16 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 export const useEquipmentDistributionLogic = () => {
   const [equipments, setEquipments] = useState<Equipment[]>([]);
+  const [isLightMode, setIsLightMode] = useState(document.body.classList.contains('light'));
   const repository = useMemo(() => new ApiEquipmentRepository(), []);
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsLightMode(document.body.classList.contains('light'));
+    });
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const loadEquipments = async () => {
@@ -73,13 +82,13 @@ export const useEquipmentDistributionLogic = () => {
     };
   }, [equipments]);
 
-  const options: ChartOptions<'pie'> = {
+  const options: ChartOptions<'pie'> = useMemo(() => ({
     responsive: true,
     plugins: {
       legend: {
         position: 'right' as const,
         labels: {
-          color: '#ccc',
+          color: isLightMode ? '#505050' : '#ccc',
           font: {
             size: 12
           }
@@ -96,7 +105,7 @@ export const useEquipmentDistributionLogic = () => {
         }
       }
     }
-  };
+  }), [isLightMode]);
 
   return {
     chartData,
