@@ -20,7 +20,25 @@ export const useEquipamentosLogic = () => {
   const loadEquipments = async () => {
     try {
       const data = await repository.getAll();
-      setEquipments(data);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); 
+
+      const correctedData = data.map(eq => {
+        if (eq.status === 'Locação' && eq.endDate && eq.endDate !== '-') {
+          try {
+            // Adicionado 'T00:00:00' para garantir que a data seja interpretada no fuso horário local
+            const endDate = new Date(`${eq.endDate}T00:00:00`);
+            if (endDate < today) {
+              return { ...eq, status: 'Expirado' as EquipmentStatus };
+            }
+          } catch (e) {
+            console.error(`Data de término inválida para o equipamento ID ${eq.id}: ${eq.endDate}`, e);
+          }
+        }
+        return eq;
+      });
+
+      setEquipments(correctedData);
     } catch (error) {
       console.error('Erro ao carregar equipamentos:', error);
     }
@@ -46,8 +64,7 @@ export const useEquipamentosLogic = () => {
         if (!eq.endDate || eq.endDate === '-') {
           monthMatch = false;
         } else {
-          const endDate = new Date(eq.endDate);
-          // O Date.getMonth() retorna 0-11, que bate com nosso filtro
+          const endDate = new Date(`${eq.endDate}T00:00:00`);
           monthMatch = endDate.getMonth() === activeFilters.endMonth;
         }
       }
@@ -73,15 +90,26 @@ export const useEquipamentosLogic = () => {
 
   const handleSaveEquipment = async (equipmentData: Omit<Equipment, 'id'>) => {
     try {
+      const dataToSave = { ...equipmentData };
+
+      if (dataToSave.status === 'Locação' && dataToSave.endDate && dataToSave.endDate !== '-') {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const endDate = new Date(`${dataToSave.endDate}T00:00:00`);
+        if (endDate < today) {
+          dataToSave.status = 'Expirado';
+        }
+      }
+
       if (editingEquipment) {
         const updatedEquipment: Equipment = {
-          ...equipmentData,
+          ...dataToSave,
           id: editingEquipment.id,
         };
         await repository.update(updatedEquipment);
       } else {
         const newEquipment: Equipment = {
-          ...equipmentData,
+          ...dataToSave,
           id: crypto.randomUUID(),
         };
         await repository.save(newEquipment);

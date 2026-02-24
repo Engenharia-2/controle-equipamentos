@@ -1,19 +1,43 @@
 import React from 'react';
-import './styles.css';
+import ClientList from '../../components/Client/ClientList';
+import ClientForm from '../../components/Client/ClientForm';
+import { useNavigation } from '../../hooks/useNavigation';
 
 const Clients: React.FC = () => {
-  return (
-    <div className="clients-page">
-      <header className="clients-header">
-        <h1>Clientes</h1>
-        <p>Clientes cadastrados no sistema.</p>
-      </header>
-      
-      <main className="clients-grid">
-        
-      </main>
-    </div>
-  );
+    const { view, id, navigateTo } = useNavigation();
+
+    const handleCreateNew = () => {
+        navigateTo('form');
+    };
+
+    const handleEdit = (clientId: string) => {
+        navigateTo('form', clientId);
+    };
+
+    const handleBackToList = () => {
+        navigateTo('list');
+    };
+
+    const handleSuccess = () => {
+        navigateTo('list');
+    };
+
+    return (
+        <div style={{ paddingBottom: '2rem' }}>
+            {view === 'list' ? (
+                <ClientList
+                    onCreate={handleCreateNew}
+                    onEdit={handleEdit}
+                />
+            ) : (
+                <ClientForm
+                    clientId={id}
+                    onCancel={handleBackToList}
+                    onSuccess={handleSuccess}
+                />
+            )}
+        </div>
+    );
 };
 
 export default Clients;

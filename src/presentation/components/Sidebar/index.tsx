@@ -46,13 +46,13 @@ export const Sidebar: React.FC = () => {
           <HardDrive size={20} />
           <span>Equipamentos</span>
         </button>
-        <button
+        {/* <button
           className={`nav-button ${isActive('/clients') ? 'active' : ''}`}
           onClick={() => handleNavigation('/clients')}
         >
           <Users size={20} />
           <span>Clientes</span>
-        </button>
+        </button> */}
       </nav>
       <div className="sidebar-footer">
         <button 
