@@ -1,55 +1,109 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { EquipmentTable } from '../../components/Equipment/EquipmentTable';
 import { EquipmentForm } from '../../components/Equipment/EquipmentForm';
 import { EquipmentFilters } from '../../components/Equipment/EquipmentFilters';
 import { Button } from '../../components/Button';
-import { Plus } from 'lucide-react';
+import { Plus, Upload } from 'lucide-react';
 import { useEquipamentosLogic } from './useLogic';
 import './styles.css';
 
 const Equipamentos: React.FC = () => {
   const { 
     equipments, 
-    isModalOpen, 
     editingEquipment,
-    handleOpenModal, 
-    handleEditOpenModal,
-    handleCloseModal, 
     handleSaveEquipment,
     handleDeleteEquipment,
-    handleFilterChange
+    handleFilterChange,
+    setEditingEquipment,
+    handleImportCSV
   } = useEquipamentosLogic();
+
+  const [view, setView] = useState<'list' | 'form'>('list');
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleOpenForm = () => {
+    setEditingEquipment(null);
+    setView('form');
+  };
+
+  const handleEditOpenForm = (equipment: any) => {
+    setEditingEquipment(equipment);
+    setView('form');
+  };
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleImportCSV(file);
+    }
+  };
+
+  const handleCloseForm = () => {
+    setView('list');
+  };
+
+  const onSave = async (data: any) => {
+    await handleSaveEquipment(data);
+    setView('list');
+  };
 
   return (
     <div className="equipamentos-page">
-      <header className="equipamentos-header">
-        <div className="equipamentos-title-container">
-          <h1>Controle de Equipamentos</h1>
-          <p>Gerenciamento de itens sob locação e disponibilidade de estoque.</p>
-        </div>
-        <Button 
-          onClick={handleOpenModal}
-          icon={<Plus size={18} />}
-        >
-          Novo Equipamento
-        </Button>
-      </header>
-      
-      <main className="equipamentos-content">
-        <section className="table-section">
-          <EquipmentFilters onFilterChange={handleFilterChange} />
-          <EquipmentTable 
-            equipments={equipments} 
-            onEdit={handleEditOpenModal}
-            onDelete={handleDeleteEquipment}
-          />
-        </section>
-      </main>
-
-      {isModalOpen && (
+      {view === 'list' ? (
+        <>
+          <header className="equipamentos-header">
+            <div className="equipamentos-title-container">
+              <h1>Controle de Equipamentos</h1>
+              <p>Gerenciamento de ativos físicos e estoque.</p>
+            </div>
+            <div className="header-actions">
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleFileChange} 
+                accept=".csv" 
+                style={{ display: 'none' }} 
+              />
+              <Button 
+                variant="secondary" 
+                onClick={handleImportClick}
+                icon={<Upload size={18} />}
+              >
+                Importar CSV
+              </Button>
+              <Button 
+                onClick={handleOpenForm}
+                icon={<Plus size={18} />}
+              >
+                Novo Equipamento
+              </Button>
+            </div>
+          </header>
+          
+          <main className="equipamentos-content">
+            <section className="table-section">
+              <EquipmentFilters 
+                onFilterChange={handleFilterChange} 
+                hideSeller 
+                hideClient 
+                hideMonth 
+              />
+              <EquipmentTable 
+                equipments={equipments} 
+                onEdit={handleEditOpenForm}
+                onDelete={handleDeleteEquipment}
+              />
+            </section>
+          </main>
+        </>
+      ) : (
         <EquipmentForm 
-          onClose={handleCloseModal} 
-          onSubmit={handleSaveEquipment} 
+          onClose={handleCloseForm} 
+          onSubmit={onSave} 
           initialData={editingEquipment}
         />
       )}

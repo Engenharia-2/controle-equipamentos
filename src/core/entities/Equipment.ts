@@ -11,5 +11,5 @@ export interface Equipment {
   allocationValue: number;
   remainingDays: number;
   seller: string;
-  serialNumber: number;
+  serialNumber: string;
 }

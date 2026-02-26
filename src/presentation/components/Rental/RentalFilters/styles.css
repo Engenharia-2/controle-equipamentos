@@ -1,0 +1,75 @@
+.filters-container {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  margin-bottom: 1.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #076df2;
+  white-space: nowrap;
+}
+
+.filter-select, .filter-input {
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-size: 0.9rem;
+  min-width: 150px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  color: #888;
+  pointer-events: none;
+}
+
+.filter-input {
+  padding-left: 32px;
+  cursor: text;
+}
+
+.filter-select:focus, .filter-input:focus {
+  outline: none;
+  border-color: #076df2;
+}
+
+.clear-filters-btn {
+  background: transparent;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  font-size: 0.8rem;
+  text-decoration: underline;
+  padding: 4px 8px;
+  transition: color 0.2s;
+}
+
+.clear-filters-btn:hover {
+  color: #ff4d4d;
+}

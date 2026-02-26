@@ -1,15 +1,22 @@
 import { useState, useEffect, useMemo } from 'react';
 import type { Equipment } from '../../../../core/entities/Equipment';
-import { ApiEquipmentRepository } from '../../../../infrastructure/repositories/ApiEquipmentRepository';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { IndexedDBEquipmentRepository } from '../../../../infrastructure/repositories/IndexedDBEquipmentRepository';
+import { 
+  Chart as ChartJS, 
+  BarElement, 
+  CategoryScale, 
+  LinearScale, 
+  Tooltip, 
+  Legend 
+} from 'chart.js';
 import type { ChartData, ChartOptions } from 'chart.js';
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 export const useEquipmentDistributionLogic = () => {
   const [equipments, setEquipments] = useState<Equipment[]>([]);
   const [isLightMode, setIsLightMode] = useState(document.body.classList.contains('light'));
-  const repository = useMemo(() => new ApiEquipmentRepository(), []);
+  const repository = useMemo(() => new IndexedDBEquipmentRepository(), []);
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
@@ -31,7 +38,7 @@ export const useEquipmentDistributionLogic = () => {
     loadEquipments();
   }, [repository]);
 
-  const chartData: ChartData<'pie'> = useMemo(() => {
+  const chartData: ChartData<'bar'> = useMemo(() => {
     const distribution: Record<string, number> = {};
     
     equipments.forEach(eq => {
@@ -39,8 +46,10 @@ export const useEquipmentDistributionLogic = () => {
       distribution[name] = (distribution[name] || 0) + 1;
     });
 
-    const labels = Object.keys(distribution);
-    const data = Object.values(distribution);
+    // Ordenar por quantidade decrescente para facilitar a leitura
+    const sortedEntries = Object.entries(distribution).sort((a, b) => b[1] - a[1]);
+    const labels = sortedEntries.map(entry => entry[0]);
+    const data = sortedEntries.map(entry => entry[1]);
 
     return {
       labels,
@@ -48,60 +57,53 @@ export const useEquipmentDistributionLogic = () => {
         {
           label: 'Quantidade',
           data,
-          backgroundColor: [
-            'rgba(100, 108, 255, 0.7)',
-            'rgba(255, 99, 132, 0.7)',
-            'rgba(54, 162, 235, 0.7)',
-            'rgba(255, 206, 86, 0.7)',
-            'rgba(75, 192, 192, 0.7)',
-            'rgba(153, 102, 255, 0.7)',
-            'rgba(255, 159, 64, 0.7)',
-            'rgba(199, 199, 199, 0.7)',
-            'rgba(83, 102, 255, 0.7)',
-            'rgba(40, 167, 69, 0.7)',
-            'rgba(220, 53, 69, 0.7)',
-            'rgba(255, 193, 7, 0.7)',
-          ],
-          borderColor: [
-            'rgba(100, 108, 255, 1)',
-            'rgba(255, 99, 132, 1)',
-            'rgba(54, 162, 235, 1)',
-            'rgba(255, 206, 86, 1)',
-            'rgba(75, 192, 192, 1)',
-            'rgba(153, 102, 255, 1)',
-            'rgba(255, 159, 64, 1)',
-            'rgba(199, 199, 199, 1)',
-            'rgba(83, 102, 255, 1)',
-            'rgba(40, 167, 69, 1)',
-            'rgba(220, 53, 69, 1)',
-            'rgba(255, 193, 7, 1)',
-          ],
+          backgroundColor: 'rgba(100, 108, 255, 0.7)',
+          borderColor: 'rgba(100, 108, 255, 1)',
           borderWidth: 1,
+          borderRadius: 4,
         },
       ],
     };
   }, [equipments]);
 
-  const options: ChartOptions<'pie'> = useMemo(() => ({
+  const options: ChartOptions<'bar'> = useMemo(() => ({
+    indexAxis: 'y' as const, // Transforma em gráfico de barras horizontais
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'right' as const,
-        labels: {
-          color: isLightMode ? '#505050' : '#ccc',
-          font: {
-            size: 12
-          }
-        }
+        display: false, // Ocultar legenda pois só temos um dataset
       },
       tooltip: {
         callbacks: {
           label: (context) => {
-            const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
+            const total = context.dataset.data.reduce((a: any, b: any) => (a as number) + (b as number), 0);
             const value = context.raw as number;
-            const percentage = ((value / total) * 100).toFixed(1);
-            return `${context.label}: ${value} (${percentage}%)`;
+            const percentage = ((value / (total as number)) * 100).toFixed(1);
+            return `Quantidade: ${value} (${percentage}%)`;
           }
+        }
+      }
+    },
+    scales: {
+      x: {
+        beginAtZero: true,
+        ticks: {
+          color: isLightMode ? '#505050' : '#ccc',
+        },
+        grid: {
+          color: isLightMode ? '#e1e4e8' : '#333',
+        }
+      },
+      y: {
+        ticks: {
+          color: isLightMode ? '#505050' : '#ccc',
+          font: {
+            size: 11
+          }
+        },
+        grid: {
+          display: false
         }
       }
     }

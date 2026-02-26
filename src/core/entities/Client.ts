@@ -1,6 +1,6 @@
 export interface Client {
   id?: string;
   name: string;
-  email: string;
+  emails: string[];
   phone: string;
 }

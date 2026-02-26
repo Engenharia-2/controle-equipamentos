@@ -4,6 +4,7 @@ import { Sidebar } from './presentation/components/Sidebar';
 import Dashboard from './presentation/pages/Dashboard';
 import Clients from './presentation/pages/Clients';
 import Equipamentos from './presentation/pages/Equipamentos';
+import Rentals from './presentation/pages/Rentals';
 import './App.css';
 
 function App() {
@@ -23,7 +24,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/equipamentos" element={<Equipamentos />} />
-          <Route path="/clients" element={<Clients />} /> {/* Placeholder for Clients page */}
+          <Route path="/clients" element={<Clients />} />
+          <Route path="/rentals" element={<Rentals />} />
         </Routes>
       </main>
     </Router>

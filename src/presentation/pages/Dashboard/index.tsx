@@ -1,4 +1,5 @@
 import React from 'react';
+import { FinancialSummary } from '../../components/Dashboard/FinancialSummary';
 import { EquipmentDistributionChart } from '../../components/Dashboard/EquipmentDistributionChart';
 import { EquipmentStatusChart } from '../../components/Dashboard/EquipmentStatusChart';
 import './styles.css';
@@ -10,6 +11,8 @@ const Dashboard: React.FC = () => {
         <h1>Dashboard</h1>
         <p>Visão geral dos equipamentos e locações.</p>
       </header>
+      
+      <FinancialSummary />
       
       <main className="dashboard-grid">
         <section>

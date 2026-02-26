@@ -4,6 +4,7 @@ import type { EquipmentStatus } from '../../../../core/entities/Equipment';
 interface FilterState {
   status?: EquipmentStatus;
   equipmentName?: string;
+  orderNumber?: string;
   seller?: string;
   client?: string;
   serialNumber?: string;
@@ -17,6 +18,7 @@ interface UseEquipmentFiltersLogicProps {
 export const useEquipmentFiltersLogic = ({ onFilterChange }: UseEquipmentFiltersLogicProps) => {
   const [selectedStatus, setSelectedStatus] = useState<EquipmentStatus | ''>('');
   const [selectedEquipment, setSelectedEquipment] = useState<string>('');
+  const [orderSearch, setOrderSearch] = useState<string>('');
   const [sellerSearch, setSellerSearch] = useState<string>('');
   const [clientSearch, setClientSearch] = useState<string>('');
   const [serialSearch, setSerialSearch] = useState<string>('');
@@ -25,6 +27,7 @@ export const useEquipmentFiltersLogic = ({ onFilterChange }: UseEquipmentFilters
   const updateFilters = (
     status: EquipmentStatus | '', 
     equipment: string, 
+    order: string,
     seller: string, 
     client: string,
     serial: string,
@@ -33,6 +36,7 @@ export const useEquipmentFiltersLogic = ({ onFilterChange }: UseEquipmentFilters
     onFilterChange({
       status: status || undefined,
       equipmentName: equipment || undefined,
+      orderNumber: order || undefined,
       seller: seller || undefined,
       client: client || undefined,
       serialNumber: serial || undefined,
@@ -42,37 +46,43 @@ export const useEquipmentFiltersLogic = ({ onFilterChange }: UseEquipmentFilters
 
   const handleStatusChange = (status: EquipmentStatus | '') => {
     setSelectedStatus(status);
-    updateFilters(status, selectedEquipment, sellerSearch, clientSearch, serialSearch, selectedMonth);
+    updateFilters(status, selectedEquipment, orderSearch, sellerSearch, clientSearch, serialSearch, selectedMonth);
   };
 
   const handleEquipmentChange = (name: string) => {
     setSelectedEquipment(name);
-    updateFilters(selectedStatus, name, sellerSearch, clientSearch, serialSearch, selectedMonth);
+    updateFilters(selectedStatus, name, orderSearch, sellerSearch, clientSearch, serialSearch, selectedMonth);
+  };
+
+  const handleOrderChange = (value: string) => {
+    setOrderSearch(value);
+    updateFilters(selectedStatus, selectedEquipment, value, sellerSearch, clientSearch, serialSearch, selectedMonth);
   };
 
   const handleSellerChange = (value: string) => {
     setSellerSearch(value);
-    updateFilters(selectedStatus, selectedEquipment, value, clientSearch, serialSearch, selectedMonth);
+    updateFilters(selectedStatus, selectedEquipment, orderSearch, value, clientSearch, serialSearch, selectedMonth);
   };
 
   const handleClientChange = (value: string) => {
     setClientSearch(value);
-    updateFilters(selectedStatus, selectedEquipment, sellerSearch, value, serialSearch, selectedMonth);
+    updateFilters(selectedStatus, selectedEquipment, orderSearch, sellerSearch, value, serialSearch, selectedMonth);
   };
 
   const handleSerialChange = (value: string) => {
     setSerialSearch(value);
-    updateFilters(selectedStatus, selectedEquipment, sellerSearch, clientSearch, value, selectedMonth);
+    updateFilters(selectedStatus, selectedEquipment, orderSearch, sellerSearch, clientSearch, value, selectedMonth);
   };
 
   const handleMonthChange = (value: string) => {
     setSelectedMonth(value);
-    updateFilters(selectedStatus, selectedEquipment, sellerSearch, clientSearch, serialSearch, value);
+    updateFilters(selectedStatus, selectedEquipment, orderSearch, sellerSearch, clientSearch, serialSearch, value);
   };
 
   const clearFilters = () => {
     setSelectedStatus('');
     setSelectedEquipment('');
+    setOrderSearch('');
     setSellerSearch('');
     setClientSearch('');
     setSerialSearch('');
@@ -83,12 +93,14 @@ export const useEquipmentFiltersLogic = ({ onFilterChange }: UseEquipmentFilters
   return {
     selectedStatus,
     selectedEquipment,
+    orderSearch,
     sellerSearch,
     clientSearch,
     serialSearch,
     selectedMonth,
     handleStatusChange,
     handleEquipmentChange,
+    handleOrderChange,
     handleSellerChange,
     handleClientChange,
     handleSerialChange,

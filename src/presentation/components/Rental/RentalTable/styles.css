@@ -1,0 +1,30 @@
+.table-container {
+  width: 100%;
+  min-width: fit-content; /* Garante que o fundo e a borda acompanhem a largura da tabela */
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border-color);
+  transition: background-color 0.3s, border-color 0.3s;
+  margin-bottom: 1rem;
+}
+
+.rental-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  min-width: 1200px;
+}
+
+.table-header {
+  background-color: var(--bg-color);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.header-cell {
+  padding: 16px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #076df2;
+  white-space: nowrap;
+}

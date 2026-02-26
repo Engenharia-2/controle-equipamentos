@@ -10,20 +10,23 @@ interface UseEquipmentFormLogicProps {
 export const useEquipmentFormLogic = ({ onSubmit, onClose, initialData }: UseEquipmentFormLogicProps) => {
   const [formData, setFormData] = useState<Omit<Equipment, 'id' | 'remainingDays'>>({
     orderNumber: 0,
-    client: '',
+    client: '-',
     status: 'Disponível',
     equipmentName: '',
-    startDate: '',
-    endDate: '',
+    startDate: '-',
+    endDate: '-',
     allocationValue: 0,
-    seller: '',
-    serialNumber: 0,
+    seller: '-',
+    serialNumber: '',
   });
 
   useEffect(() => {
     if (initialData) {
       const { id, remainingDays, ...rest } = initialData;
-      setFormData(rest);
+      setFormData({
+        ...rest,
+        serialNumber: String(rest.serialNumber)
+      });
     }
   }, [initialData]);
 
@@ -31,7 +34,7 @@ export const useEquipmentFormLogic = ({ onSubmit, onClose, initialData }: UseEqu
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === 'orderNumber' || name === 'serialNumber' || name === 'allocationValue'
+      [name]: name === 'orderNumber' || name === 'allocationValue'
         ? Number(value) 
         : value,
     }));
@@ -39,6 +42,8 @@ export const useEquipmentFormLogic = ({ onSubmit, onClose, initialData }: UseEqu
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // No novo modelo, campos como client e dates serão preenchidos pela Locação futuramente.
+    // Por enquanto, enviamos valores padrão para manter compatibilidade com a interface atual.
     onSubmit({ ...formData, remainingDays: 0 });
     onClose();
   };

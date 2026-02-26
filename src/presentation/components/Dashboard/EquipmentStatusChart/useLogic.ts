@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import type { Equipment } from '../../../../core/entities/Equipment';
-import { ApiEquipmentRepository } from '../../../../infrastructure/repositories/ApiEquipmentRepository';
+import { IndexedDBEquipmentRepository } from '../../../../infrastructure/repositories/IndexedDBEquipmentRepository';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import type { ChartData, ChartOptions } from 'chart.js';
 
@@ -9,7 +9,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 export const useEquipmentStatusLogic = () => {
   const [equipments, setEquipments] = useState<Equipment[]>([]);
   const [isLightMode, setIsLightMode] = useState(document.body.classList.contains('light'));
-  const repository = useMemo(() => new ApiEquipmentRepository(), []);
+  const repository = useMemo(() => new IndexedDBEquipmentRepository(), []);
 
   useEffect(() => {
     const observer = new MutationObserver(() => {

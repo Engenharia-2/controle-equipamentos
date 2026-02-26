@@ -1,0 +1,84 @@
+.rental-row {
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s;
+}
+
+.rental-row:hover {
+  background-color: var(--bg-color);
+}
+
+.rental-cell {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 0.85rem;
+  color: var(--text-color);
+  vertical-align: middle;
+}
+
+.rental-name {
+  font-weight: 600;
+  color: #076df2;
+}
+
+.rental-secondary {
+  color: var(--sidebar-text);
+}
+
+/* Status Badge Styles */
+.rental-status-badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-block;
+  text-align: center;
+  min-width: 80px;
+  color: #fff;
+}
+
+.status-allocated {
+  background-color: #2e7d32; /* Verde */
+}
+
+.status-expiring {
+  background-color: #fb8c00; /* Laranja */
+}
+
+.status-expired {
+  background-color: #d32f2f; /* Vermelho */
+}
+
+.status-undefined {
+  background-color: #757575; /* Cinza */
+}
+
+.actions-cell {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+}
+
+.action-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.finish-button {
+  color: #2e7d32;
+  border: 1px solid rgba(46, 125, 50, 0.3);
+}
+
+.finish-button:hover {
+  background-color: rgba(46, 125, 50, 0.1);
+  border-color: #2e7d32;
+}

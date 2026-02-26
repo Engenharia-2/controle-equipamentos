@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, HardDrive, Sun, Moon, Users } from 'lucide-react';
+import { LayoutDashboard, HardDrive, Sun, Moon, Users, FileText } from 'lucide-react';
 import { useNavigation } from '../../hooks/useNavigation';
 import logoImg from '../../../assets/logoLHF5.png';
 import './styles.css';
@@ -46,13 +46,20 @@ export const Sidebar: React.FC = () => {
           <HardDrive size={20} />
           <span>Equipamentos</span>
         </button>
-        {/* <button
+        <button
           className={`nav-button ${isActive('/clients') ? 'active' : ''}`}
           onClick={() => handleNavigation('/clients')}
         >
           <Users size={20} />
           <span>Clientes</span>
-        </button> */}
+        </button> 
+        <button
+          className={`nav-button ${isActive('/rentals') ? 'active' : ''}`}
+          onClick={() => handleNavigation('/rentals')}
+        >
+          <FileText size={20} />
+          <span>Locações</span>
+        </button>
       </nav>
       <div className="sidebar-footer">
         <button 

@@ -47,7 +47,13 @@ body {
   flex: 1;
   margin-left: 240px; /* Sidebar width */
   padding: 2rem;
-  width: 100%;
+  /* IMPORTANTE: A largura deve permitir o estouro do conteúdo para o scroll horizontal da página */
+  width: calc(100% - 240px);
+  min-height: 100vh;
+  overflow-x: auto; 
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 a {

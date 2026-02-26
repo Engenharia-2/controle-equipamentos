@@ -10,6 +10,15 @@ export class ApiEquipmentRepository implements IEquipmentRepository {
     return response.data;
   }
 
+  async getById(id: string): Promise<Equipment | null> {
+    try {
+      const response = await axios.get<Equipment>(`${API_URL}/${id}`);
+      return response.data;
+    } catch {
+      return null;
+    }
+  }
+
   async save(equipment: Equipment): Promise<void> {
     await axios.post(API_URL, equipment);
   }

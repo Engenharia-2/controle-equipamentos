@@ -23,14 +23,8 @@ export const EquipmentTable: React.FC<EquipmentTableProps> = ({
         <thead className="table-header">
           <tr>
             <th className="header-cell">N/P</th>
-            <th className="header-cell">Cliente</th>
             <th className="header-cell">Status</th>
             <th className="header-cell">Equipamento</th>
-            <th className="header-cell">Início</th>
-            <th className="header-cell">Término</th>
-            <th className="header-cell">Valor</th>
-            <th className="header-cell">Dias Restantes</th>
-            <th className="header-cell">Vendedor</th>
             <th className="header-cell">N/S</th>
             <th className="header-cell">Ações</th>
           </tr>

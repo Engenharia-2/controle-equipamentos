@@ -11,25 +11,17 @@ interface EquipmentRowProps {
 }
 
 export const EquipmentRow: React.FC<EquipmentRowProps> = ({ equipment, onEdit, onDelete }) => {
-  const { getStatusClass, formatDate, remainingDays } = useEquipmentRowLogic(equipment);
+  const { getStatusClass } = useEquipmentRowLogic(equipment);
 
   return (
     <tr className="equipment-row">
       <td className="equipment-cell">{equipment.orderNumber}</td>
-      <td className="equipment-cell">{equipment.client}</td>
       <td className="equipment-cell">
         <span className={`status-badge ${getStatusClass()}`}>
           {equipment.status}
         </span>
       </td>
       <td className="equipment-cell">{equipment.equipmentName}</td>
-      <td className="equipment-cell">{formatDate(equipment.startDate)}</td>
-      <td className="equipment-cell">{formatDate(equipment.endDate)}</td>
-      <td className="equipment-cell">
-        {(equipment.allocationValue ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-      </td>
-      <td className="equipment-cell">{remainingDays}</td>
-      <td className="equipment-cell">{equipment.seller}</td>
       <td className="equipment-cell">{equipment.serialNumber}</td>
       <td className="actions-cell">
         <button 
