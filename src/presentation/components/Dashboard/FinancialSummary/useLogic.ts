@@ -1,15 +1,15 @@
 import { useState, useEffect, useMemo } from 'react';
 import type { Equipment } from '../../../../core/entities/Equipment';
 import type { Rental } from '../../../../core/entities/Rental';
-import { IndexedDBEquipmentRepository } from '../../../../infrastructure/repositories/IndexedDBEquipmentRepository';
-import { IndexedDBRentalRepository } from '../../../../infrastructure/repositories/IndexedDBRentalRepository';
+import { useRepositories } from '../../../../shared/contexts/RepositoryContext';
+import { useDashboard } from '../../../contexts/DashboardContext';
 
 export const useFinancialSummaryLogic = () => {
   const [equipments, setEquipments] = useState<Equipment[]>([]);
   const [allRentals, setAllRentals] = useState<Rental[]>([]);
+  const { filters } = useDashboard();
   
-  const equipmentRepository = useMemo(() => new IndexedDBEquipmentRepository(), []);
-  const rentalRepository = useMemo(() => new IndexedDBRentalRepository(), []);
+  const { equipmentRepository, rentalRepository } = useRepositories();
 
   useEffect(() => {
     const loadData = async () => {
@@ -28,62 +28,59 @@ export const useFinancialSummaryLogic = () => {
   }, [equipmentRepository, rentalRepository]);
 
   const metrics = useMemo(() => {
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
+    const { month, year, equipmentModel } = filters;
 
-    const lastMonthDate = new Date(currentYear, currentMonth - 1, 1);
-    const lastMonth = lastMonthDate.getMonth();
-    const lastMonthYear = lastMonthDate.getFullYear();
+    // Filtro de Modelo nos Equipamentos (para potencial)
+    const filteredEquipments = equipmentModel 
+      ? equipments.filter(e => e.equipmentName === equipmentModel)
+      : equipments;
 
-    // Função para verificar se uma locação estava ativa em um determinado mês/ano
-    const wasActiveIn = (rental: Rental, month: number, year: number) => {
+    // Função para verificar se uma locação estava ativa no mês/ano filtrado
+    const wasActiveInPeriod = (rental: any) => {
       const start = new Date(rental.startDate);
       const end = new Date(rental.endDate);
       const targetStart = new Date(year, month, 1);
       const targetEnd = new Date(year, month + 1, 0);
 
+      // Verificação direta no modelo do equipamento aninhado
+      if (equipmentModel && rental.equipment?.equipmentName !== equipmentModel) {
+        return false;
+      }
+
       return start <= targetEnd && end >= targetStart;
     };
 
-    // Métrica Atual (Mês Presente)
-    const activeRentalsNow = allRentals.filter(r => r.status === 'Ativa');
-    const monthlyActiveRevenue = activeRentalsNow.reduce((acc, r) => acc + (r.monthlyValue || 0), 0);
-    const activeCount = activeRentalsNow.length;
+    // Locações vigentes no período filtrado
+    const activeRentalsInPeriod = allRentals.filter(wasActiveInPeriod);
+    
+    // 1. Faturamento Mensal do Período
+    const monthlyActiveRevenue = activeRentalsInPeriod.reduce((acc, r) => acc + (r.monthlyValue || 0), 0);
+    
+    // 2. Volume de Locações no Período
+    const activeCount = activeRentalsInPeriod.length;
+    
+    // 3. Ticket Médio no Período
     const averageMonthlyTicket = activeCount > 0 ? monthlyActiveRevenue / activeCount : 0;
 
-    // Métrica Mês Anterior (Para Comparativo)
-    const rentalsLastMonth = allRentals.filter(r => wasActiveIn(r, lastMonth, lastMonthYear));
-    const revenueLastMonth = rentalsLastMonth.reduce((acc, r) => acc + (r.monthlyValue || 0), 0);
-    const countLastMonth = rentalsLastMonth.length;
-
-    // Cálculo de Tendência (Diferença percentual ou absoluta)
-    const revenueGrowth = revenueLastMonth > 0 
-      ? ((monthlyActiveRevenue - revenueLastMonth) / revenueLastMonth) * 100 
-      : 0;
-
-    // Potencial e Valor Contratado (Baseado no estado atual)
-    const totalPotentialMonthlyRevenue = equipments.reduce((acc, eq) => acc + (eq.allocationValue || 0), 0);
-    
-    const totalContractedValue = activeRentalsNow.reduce((acc, r) => {
+    // 4. Valor Total Contratado (Pro rata baseada no mês)
+    const totalContractedValue = activeRentalsInPeriod.reduce((acc, r) => {
       const start = new Date(r.startDate);
       const end = new Date(r.endDate);
       const diffDays = Math.ceil(Math.abs(end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
       return acc + ((r.monthlyValue / 30) * diffDays);
     }, 0);
 
+    // 5. Potencial Mensal Máximo (Baseado no baseValue do estoque filtrado)
+    const totalPotentialMonthlyRevenue = filteredEquipments.reduce((acc, eq) => acc + (eq.baseValue || 0), 0);
+
     return {
       monthlyActiveRevenue,
-      revenueLastMonth,
-      revenueGrowth,
       averageMonthlyTicket,
       totalPotentialMonthlyRevenue,
       totalContractedValue,
-      activeCount,
-      countLastMonth,
-      countGrowth: monthlyActiveRevenue - revenueLastMonth // Diferença absoluta de valor
+      activeCount
     };
-  }, [equipments, allRentals]);
+  }, [equipments, allRentals, filters]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {

@@ -1,24 +1,29 @@
 .table-container {
   width: 100%;
-  min-width: fit-content;
+  overflow: auto; /* Habilita scroll horizontal e vertical interno */
+  max-height: calc(100vh - 280px); /* Garante que o container caiba na tela e o scroll fique visível */
   background-color: var(--card-bg);
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border: 1px solid var(--border-color);
   transition: background-color 0.3s, border-color 0.3s;
   margin-bottom: 1rem;
+  position: relative;
 }
 
 .client-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate; /* Necessário para sticky header funcionar bem com bordas */
+  border-spacing: 0;
   text-align: left;
-  min-width: 1200px;
+  min-width: 1000px; /* Largura mínima para garantir legibilidade dos dados */
 }
 
 .table-header {
   background-color: var(--bg-color);
-  border-bottom: 2px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .header-cell {
@@ -26,4 +31,6 @@
   font-weight: 600;
   font-size: 0.9rem;
   color: #076df2;
+  background-color: var(--card-bg); /* Garante que o fundo do header seja opaco ao scrollar */
+  border-bottom: 2px solid var(--border-color);
 }

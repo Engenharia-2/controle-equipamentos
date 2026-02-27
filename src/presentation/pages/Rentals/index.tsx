@@ -12,7 +12,10 @@ const Rentals: React.FC = () => {
   const { 
     rentals, 
     loading, 
+    editingRental,
+    setEditingRental,
     handleFinishRental, 
+    handleDeleteRental,
     handleFilterChange,
     formatCurrency, 
     formatDate,
@@ -21,11 +24,23 @@ const Rentals: React.FC = () => {
 
   const handleSuccess = () => {
     setView('list');
+    setEditingRental(null);
     refresh();
   };
 
   const handleCancel = () => {
     setView('list');
+    setEditingRental(null);
+  };
+
+  const handleEdit = (rental: any) => {
+    setEditingRental(rental);
+    setView('form');
+  };
+
+  const handleAddNew = () => {
+    setEditingRental(null);
+    setView('form');
   };
 
   return (
@@ -38,7 +53,7 @@ const Rentals: React.FC = () => {
               <p>Gerenciamento de contratos e vínculos entre clientes e equipamentos.</p>
             </div>
             <Button 
-              onClick={() => setView('form')}
+              onClick={handleAddNew}
               icon={<Plus size={18} />}
             >
               Nova Locação
@@ -58,6 +73,8 @@ const Rentals: React.FC = () => {
               <RentalTable 
                 rentals={rentals}
                 onFinish={handleFinishRental}
+                onDelete={handleDeleteRental}
+                onEdit={handleEdit}
                 formatDate={formatDate}
                 formatCurrency={formatCurrency}
               />
@@ -68,6 +85,7 @@ const Rentals: React.FC = () => {
         <RentalForm 
           onSuccess={handleSuccess}
           onCancel={handleCancel}
+          editingRental={editingRental}
         />
       )}
     </div>

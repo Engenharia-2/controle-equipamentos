@@ -6,6 +6,7 @@ export interface Equipment {
   client: string;
   status: EquipmentStatus;
   equipmentName: string;
+  baseValue: number;
   startDate: string;
   endDate: string;
   allocationValue: number;

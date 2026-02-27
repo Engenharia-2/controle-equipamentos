@@ -1,15 +1,20 @@
 import { useState, useEffect, useMemo } from 'react';
 import type { Equipment } from '../../../../core/entities/Equipment';
-import { IndexedDBEquipmentRepository } from '../../../../infrastructure/repositories/IndexedDBEquipmentRepository';
+import type { Rental } from '../../../../core/entities/Rental';
+import { useRepositories } from '../../../../shared/contexts/RepositoryContext';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import type { ChartData, ChartOptions } from 'chart.js';
+import { useDashboard } from '../../../contexts/DashboardContext';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export const useEquipmentStatusLogic = () => {
   const [equipments, setEquipments] = useState<Equipment[]>([]);
+  const [allRentals, setAllRentals] = useState<Rental[]>([]);
+  const { filters } = useDashboard();
   const [isLightMode, setIsLightMode] = useState(document.body.classList.contains('light'));
-  const repository = useMemo(() => new IndexedDBEquipmentRepository(), []);
+  
+  const { equipmentRepository, rentalRepository } = useRepositories();
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
@@ -20,60 +25,92 @@ export const useEquipmentStatusLogic = () => {
   }, []);
 
   useEffect(() => {
-    const loadEquipments = async () => {
+    const loadData = async () => {
       try {
-        const data = await repository.getAll();
-        setEquipments(data);
+        const [eqData, rentData] = await Promise.all([
+          equipmentRepository.getAll(),
+          rentalRepository.getAll()
+        ]);
+        setEquipments(eqData);
+        setAllRentals(rentData);
       } catch (error) {
-        console.error('Erro ao carregar dados de status para o gráfico:', error);
+        console.error('Erro ao carregar dados para o gráfico:', error);
       }
     };
-    loadEquipments();
-  }, [repository]);
+    loadData();
+  }, [equipmentRepository, rentalRepository]);
 
   const chartData: ChartData<'pie'> = useMemo(() => {
-    const statusCounts: Record<string, number> = {
+    const { month, year, equipmentModel } = filters;
+    const targetStart = new Date(year, month, 1);
+    const targetEnd = new Date(year, month + 1, 0);
+
+    // Filtra equipamentos por modelo se selecionado
+    const filteredEquipments = equipmentModel 
+      ? equipments.filter(e => e.equipmentName === equipmentModel)
+      : equipments;
+
+    const statusCounts = {
       'Locação': 0,
       'Disponível': 0,
-      'Expirado': 0,
+      'Expirado': 0
     };
-    
-    equipments.forEach(eq => {
-      statusCounts[eq.status]++;
+
+    filteredEquipments.forEach(eq => {
+      // Busca se houve locação ativa para este equipamento específico no mês selecionado
+      const rentalInPeriod = allRentals.find(r => {
+        // Ajuste para lidar com o objeto vindo da API
+        const rEquipmentId = typeof (r as any).equipment === 'object' ? (r as any).equipment.id : (r as any).equipment || r.equipmentId;
+        if (rEquipmentId !== eq.id) return false;
+        
+        const start = new Date(r.startDate);
+        const end = new Date(r.endDate);
+        return start <= targetEnd && end >= targetStart;
+      });
+
+      if (rentalInPeriod) {
+        const end = new Date(rentalInPeriod.endDate);
+        const today = new Date(); // Aqui poderíamos usar targetEnd se quiséssemos o status "naquele dia"
+        
+        if (targetEnd > end) {
+          statusCounts['Expirado']++;
+        } else {
+          statusCounts['Locação']++;
+        }
+      } else {
+        statusCounts['Disponível']++;
+      }
     });
 
-    const labels = Object.keys(statusCounts);
-    const data = Object.values(statusCounts);
-
     return {
-      labels,
+      labels: ['Locação', 'Disponível', 'Expirado'],
       datasets: [
         {
-          label: 'Quantidade',
-          data,
+          data: [statusCounts['Locação'], statusCounts['Disponível'], statusCounts['Expirado']],
           backgroundColor: [
-            'rgba(54, 162, 235, 0.7)', // Locação (Azul)
-            'rgba(75, 192, 192, 0.7)', // Disponível (Verde)
-            'rgba(255, 99, 132, 0.7)', // Expirado (Vermelho)
+            'rgba(46, 125, 50, 0.7)',
+            'rgba(25, 118, 210, 0.7)',
+            'rgba(211, 47, 47, 0.7)',
           ],
           borderColor: [
-            'rgba(54, 162, 235, 1)',
-            'rgba(75, 192, 192, 1)',
-            'rgba(255, 99, 132, 1)',
+            'rgba(46, 125, 50, 1)',
+            'rgba(25, 118, 210, 1)',
+            'rgba(211, 47, 47, 1)',
           ],
           borderWidth: 1,
         },
       ],
     };
-  }, [equipments]);
+  }, [equipments, allRentals, filters]);
 
   const options: ChartOptions<'pie'> = useMemo(() => ({
     responsive: true,
     plugins: {
       legend: {
-        position: 'right' as const,
+        position: 'bottom' as const,
         labels: {
           color: isLightMode ? '#505050' : '#ccc',
+          padding: 20,
           font: {
             size: 12
           }
@@ -82,9 +119,9 @@ export const useEquipmentStatusLogic = () => {
       tooltip: {
         callbacks: {
           label: (context) => {
-            const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
             const value = context.raw as number;
-            const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+            const total = (context.dataset.data as number[]).reduce((a, b) => a + b, 0);
+            const percentage = ((value / total) * 100).toFixed(1);
             return `${context.label}: ${value} (${percentage}%)`;
           }
         }

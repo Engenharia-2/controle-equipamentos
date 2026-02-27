@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import type { Equipment } from '../../../../core/entities/Equipment';
+import type { Rental } from '../../../../core/entities/Rental';
 import { useRepositories } from '../../../../shared/contexts/RepositoryContext';
 import { 
   Chart as ChartJS, 
@@ -14,11 +14,11 @@ import { useDashboard } from '../../../contexts/DashboardContext';
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
-export const useEquipmentDistributionLogic = () => {
-  const [equipments, setEquipments] = useState<Equipment[]>([]);
+export const useEquipmentRentalLogic = () => {
+  const [allRentals, setAllRentals] = useState<Rental[]>([]);
   const { filters } = useDashboard();
   const [isLightMode, setIsLightMode] = useState(document.body.classList.contains('light'));
-  const { equipmentRepository } = useRepositories();
+  const { rentalRepository } = useRepositories();
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
@@ -29,29 +29,45 @@ export const useEquipmentDistributionLogic = () => {
   }, []);
 
   useEffect(() => {
-    const loadEquipments = async () => {
+    const loadData = async () => {
       try {
-        const data = await equipmentRepository.getAll();
-        setEquipments(data);
+        const data = await rentalRepository.getAll();
+        setAllRentals(data);
       } catch (error) {
-        console.error('Erro ao carregar dados para o gráfico:', error);
+        console.error('Erro ao carregar dados para o gráfico de locações:', error);
       }
     };
-    loadEquipments();
-  }, [equipmentRepository]);
+    loadData();
+  }, [rentalRepository]);
 
   const chartData: ChartData<'bar'> = useMemo(() => {
-    const { equipmentModel } = filters;
+    const { month, year, equipmentModel } = filters;
+    const targetStart = new Date(year, month, 1);
+    const targetEnd = new Date(year, month + 1, 0);
+
     const distribution: Record<string, number> = {};
     
-    // Filtra se houver modelo selecionado
-    const targetEquipments = equipmentModel 
-      ? equipments.filter(e => e.equipmentName === equipmentModel)
-      : equipments;
+    // Filtra locações ativas no período
+    const activeRentals = allRentals.filter(rental => {
+      const start = new Date(rental.startDate);
+      const end = new Date(rental.endDate);
+      
+      // Verifica se a locação estava ativa no período alvo
+      const isActiveInPeriod = start <= targetEnd && end >= targetStart;
+      if (!isActiveInPeriod) return false;
 
-    targetEquipments.forEach(eq => {
-      const name = eq.equipmentName;
-      distribution[name] = (distribution[name] || 0) + 1;
+      // Se houver filtro de modelo, aplica
+      if (equipmentModel) {
+        const modelName = (rental as any).equipment?.equipmentName || '';
+        return modelName === equipmentModel;
+      }
+
+      return true;
+    });
+
+    activeRentals.forEach(rental => {
+      const modelName = (rental as any).equipment?.equipmentName || 'Modelo não Identificado';
+      distribution[modelName] = (distribution[modelName] || 0) + 1;
     });
 
     const sortedEntries = Object.entries(distribution).sort((a, b) => b[1] - a[1]);
@@ -62,16 +78,16 @@ export const useEquipmentDistributionLogic = () => {
       labels,
       datasets: [
         {
-          label: 'Quantidade',
+          label: 'Locações Ativas',
           data,
-          backgroundColor: 'rgba(100, 108, 255, 0.7)',
-          borderColor: 'rgba(100, 108, 255, 1)',
+          backgroundColor: 'rgba(46, 125, 50, 0.7)', // Tom de verde para diferenciar do estoque
+          borderColor: 'rgba(46, 125, 50, 1)',
           borderWidth: 1,
           borderRadius: 4,
         },
       ],
     };
-  }, [equipments, filters]);
+  }, [allRentals, filters]);
 
   const options: ChartOptions<'bar'> = useMemo(() => ({
     indexAxis: 'y' as const,
@@ -86,8 +102,8 @@ export const useEquipmentDistributionLogic = () => {
           label: (context) => {
             const value = context.raw as number;
             const total = (context.dataset.data as number[]).reduce((a, b) => a + b, 0);
-            const percentage = ((value / total) * 100).toFixed(1);
-            return `Quantidade: ${value} (${percentage}%)`;
+            const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0';
+            return `Locações: ${value} (${percentage}%)`;
           }
         }
       }
@@ -95,7 +111,10 @@ export const useEquipmentDistributionLogic = () => {
     scales: {
       x: {
         beginAtZero: true,
-        ticks: { color: isLightMode ? '#505050' : '#ccc' },
+        ticks: { 
+          color: isLightMode ? '#505050' : '#ccc',
+          stepSize: 1
+        },
         grid: { color: isLightMode ? '#e1e4e8' : '#333' }
       },
       y: {
@@ -111,6 +130,6 @@ export const useEquipmentDistributionLogic = () => {
   return {
     chartData,
     options,
-    hasData: equipments.length > 0
+    hasData: allRentals.length > 0
   };
 };

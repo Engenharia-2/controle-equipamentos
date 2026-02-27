@@ -1,9 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { Client } from '../../core/entities/Client';
-import { IndexedDBClientRepository } from '../../infrastructure/repositories/IndexedDBClientRepository';
+import { useRepositories } from '../../shared/contexts/RepositoryContext';
 import Papa from 'papaparse';
-
-const clientRepository = new IndexedDBClientRepository();
 
 export const useClients = (clientId?: string) => {
   const [clients, setClients] = useState<Client[]>([]);
@@ -16,6 +14,8 @@ export const useClients = (clientId?: string) => {
   });
   const [formLoading, setFormLoading] = useState(false);
   const [importProgress, setImportProgress] = useState<number | null>(null);
+
+  const { clientRepository } = useRepositories();
 
   const fetchClients = useCallback(async () => {
     try {

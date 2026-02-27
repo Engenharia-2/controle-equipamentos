@@ -1,11 +1,13 @@
 import React from 'react';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Edit, Trash2 } from 'lucide-react';
 import { useRentalRowLogic } from './useLogic';
 import './styles.css';
 
 interface RentalRowProps {
   rental: any;
   onFinish: (rental: any) => void;
+  onEdit: (rental: any) => void;
+  onDelete: (id: string) => void;
   formatDate: (date: string) => string;
   formatCurrency: (value: number) => string;
 }
@@ -13,6 +15,8 @@ interface RentalRowProps {
 export const RentalRow: React.FC<RentalRowProps> = ({ 
   rental, 
   onFinish, 
+  onEdit,
+  onDelete,
   formatDate, 
   formatCurrency 
 }) => {
@@ -36,10 +40,23 @@ export const RentalRow: React.FC<RentalRowProps> = ({
         <button
           onClick={() => onFinish(rental)}
           className="action-button finish-button"
-          title="Finalizar Locação (Devolver Equipamento)"
+          title="Finalizar Locação"
         >
           <CheckCircle size={18} />
-          <span>Finalizar</span>
+        </button>
+        <button
+          onClick={() => onEdit(rental)}
+          className="action-button edit-button"
+          title="Editar Registro"
+        >
+          <Edit size={18} />
+        </button>
+        <button
+          onClick={() => onDelete(rental.id)}
+          className="action-button delete-button"
+          title="Excluir Registro"
+        >
+          <Trash2 size={18} />
         </button>
       </td>
     </tr>

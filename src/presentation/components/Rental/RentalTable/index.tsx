@@ -5,6 +5,8 @@ import './styles.css';
 interface RentalTableProps {
   rentals: any[];
   onFinish: (rental: any) => void;
+  onEdit: (rental: any) => void;
+  onDelete: (id: string) => void;
   formatDate: (date: string) => string;
   formatCurrency: (value: number) => string;
 }
@@ -12,6 +14,8 @@ interface RentalTableProps {
 export const RentalTable: React.FC<RentalTableProps> = ({ 
   rentals, 
   onFinish, 
+  onEdit,
+  onDelete,
   formatDate, 
   formatCurrency 
 }) => {
@@ -37,6 +41,8 @@ export const RentalTable: React.FC<RentalTableProps> = ({
               key={rental.id} 
               rental={rental} 
               onFinish={onFinish}
+              onEdit={onEdit}
+              onDelete={onDelete}
               formatDate={formatDate}
               formatCurrency={formatCurrency}
             />

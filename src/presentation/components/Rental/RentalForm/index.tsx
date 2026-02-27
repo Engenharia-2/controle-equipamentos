@@ -1,41 +1,45 @@
 import React from 'react';
 import { useRentalFormLogic } from './useLogic';
 import './styles.css';
+import type { Equipment } from '@/core/entities/Equipment';
+import type { Client } from '@/core/entities/Client';
 
 interface RentalFormProps {
   onSuccess: () => void;
   onCancel: () => void;
+  editingRental?: any;
 }
 
-export const RentalForm: React.FC<RentalFormProps> = ({ onSuccess, onCancel }) => {
+export const RentalForm: React.FC<RentalFormProps> = ({ onSuccess, onCancel, editingRental }) => {
   const { 
     formData, 
     loading, 
     handleChange, 
     handleSubmit,
-    // Busca de Clientes
+    // ... restante desestruturado
     clientSearch,
     setClientSearch,
     filteredClients,
     selectClient,
     showClientResults,
     setShowClientResults,
-    // Busca de Equipamentos
     equipmentSearch,
     setEquipmentSearch,
     filteredEquipments,
     selectEquipment,
     showEquipmentResults,
     setShowEquipmentResults
-  } = useRentalFormLogic(onSuccess, onCancel);
+  } = useRentalFormLogic(onSuccess, onCancel, editingRental);
 
   if (loading) return <div className="loading">Carregando dados...</div>;
 
   return (
     <div className="rental-form-container">
       <header className="form-header">
-        <h2 className="form-title">Nova Locação</h2>
-        <p className="form-subtitle">Vincule um cliente a um equipamento disponível.</p>
+        <h2 className="form-title">{editingRental ? 'Editar Locação' : 'Nova Locação'}</h2>
+        <p className="form-subtitle">
+          {editingRental ? `Editando registro ID: ${editingRental.id}` : 'Vincule um cliente a um equipamento disponível.'}
+        </p>
       </header>
 
       <div className="form-card">
@@ -58,7 +62,7 @@ export const RentalForm: React.FC<RentalFormProps> = ({ onSuccess, onCancel }) =
             />
             {showClientResults && filteredClients.length > 0 && (
               <ul className="autocomplete-results">
-                {filteredClients.map(client => (
+                {filteredClients.map((client: Client) => (
                   <li 
                     key={client.id} 
                     onClick={() => selectClient(client)}
@@ -89,7 +93,7 @@ export const RentalForm: React.FC<RentalFormProps> = ({ onSuccess, onCancel }) =
             />
             {showEquipmentResults && filteredEquipments.length > 0 && (
               <ul className="autocomplete-results">
-                {filteredEquipments.map(eq => (
+                {filteredEquipments.map((eq: Equipment) => (
                   <li 
                     key={eq.id} 
                     onClick={() => selectEquipment(eq)}

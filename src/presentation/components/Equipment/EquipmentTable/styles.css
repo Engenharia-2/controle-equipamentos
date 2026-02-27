@@ -1,23 +1,28 @@
 .table-container {
   width: 100%;
-  min-width: fit-content;
+  overflow: auto;
+  max-height: calc(100vh - 280px);
   background-color: var(--card-bg);
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border: 1px solid var(--border-color);
   transition: background-color 0.3s, border-color 0.3s;
+  position: relative;
 }
 
 .equipment-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   text-align: left;
-  min-width: 1200px;
+  min-width: 1000px;
 }
 
 .table-header {
   background-color: var(--bg-color);
-  border-bottom: 2px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .header-cell {
@@ -25,4 +30,6 @@
   font-weight: 600;
   font-size: 0.9rem;
   color: #076df2;
+  background-color: var(--card-bg);
+  border-bottom: 2px solid var(--border-color);
 }

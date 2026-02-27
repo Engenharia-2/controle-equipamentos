@@ -3,7 +3,7 @@ import { EquipmentTable } from '../../components/Equipment/EquipmentTable';
 import { EquipmentForm } from '../../components/Equipment/EquipmentForm';
 import { EquipmentFilters } from '../../components/Equipment/EquipmentFilters';
 import { Button } from '../../components/Button';
-import { Plus, Upload } from 'lucide-react';
+import { Plus, Upload, Trash2 } from 'lucide-react';
 import { useEquipamentosLogic } from './useLogic';
 import './styles.css';
 
@@ -13,6 +13,7 @@ const Equipamentos: React.FC = () => {
     editingEquipment,
     handleSaveEquipment,
     handleDeleteEquipment,
+    handleDeleteAll,
     handleFilterChange,
     setEditingEquipment,
     handleImportCSV
@@ -68,6 +69,14 @@ const Equipamentos: React.FC = () => {
                 accept=".csv" 
                 style={{ display: 'none' }} 
               />
+              <Button 
+                variant="secondary" 
+                onClick={handleDeleteAll}
+                icon={<Trash2 size={18} />}
+                className="btn-danger"
+              >
+                Excluir Todos
+              </Button>
               <Button 
                 variant="secondary" 
                 onClick={handleImportClick}

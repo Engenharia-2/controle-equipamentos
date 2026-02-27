@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { Equipment, EquipmentStatus } from '../../../core/entities/Equipment';
-import { IndexedDBEquipmentRepository } from '../../../infrastructure/repositories/IndexedDBEquipmentRepository';
+import { useRepositories } from '../../../shared/contexts/RepositoryContext';
 import Papa from 'papaparse';
 
 export const useEquipamentosLogic = () => {
@@ -16,16 +16,16 @@ export const useEquipamentosLogic = () => {
   }>({});
   const [editingEquipment, setEditingEquipment] = useState<Equipment | null>(null);
   
-  const repository = useMemo(() => new IndexedDBEquipmentRepository(), []);
+  const { equipmentRepository } = useRepositories();
 
   const loadEquipments = useCallback(async () => {
     try {
-      const data = await repository.getAll();
+      const data = await equipmentRepository.getAll();
       setEquipments(data);
     } catch (error) {
       console.error('Erro ao carregar equipamentos:', error);
     }
-  }, [repository]);
+  }, [equipmentRepository]);
 
   useEffect(() => {
     loadEquipments();
@@ -66,7 +66,7 @@ export const useEquipamentosLogic = () => {
               remainingDays: 0
             };
 
-            await repository.save(newEquipment);
+            await equipmentRepository.save(newEquipment);
             successCount++;
           }
 
@@ -87,13 +87,13 @@ export const useEquipamentosLogic = () => {
   const handleSaveEquipment = async (equipmentData: Omit<Equipment, 'id'>) => {
     try {
       if (editingEquipment) {
-        await repository.update({ ...equipmentData, id: editingEquipment.id });
+        await equipmentRepository.update({ ...equipmentData, id: editingEquipment.id });
       } else {
         const newEquipment: Equipment = {
           ...equipmentData,
           id: crypto.randomUUID(),
         };
-        await repository.save(newEquipment);
+        await equipmentRepository.save(newEquipment);
       }
       await loadEquipments();
     } catch (error) {
@@ -104,10 +104,26 @@ export const useEquipamentosLogic = () => {
   const handleDeleteEquipment = async (id: string) => {
     if (window.confirm('Tem certeza que deseja excluir este equipamento?')) {
       try {
-        await repository.delete(id);
+        await equipmentRepository.delete(id);
         await loadEquipments();
       } catch (error) {
         console.error('Erro ao excluir equipamento:', error);
+      }
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    if (window.confirm('TEM CERTEZA? Isso excluirá TODOS os equipamentos da base de dados permanentemente.')) {
+      try {
+        const allEquipments = await equipmentRepository.getAll();
+        for (const eq of allEquipments) {
+          if (eq.id) await equipmentRepository.delete(eq.id);
+        }
+        await loadEquipments();
+        alert('Todos os equipamentos foram excluídos.');
+      } catch (error) {
+        console.error('Erro ao excluir todos os equipamentos:', error);
+        alert('Erro ao excluir equipamentos.');
       }
     }
   };
@@ -132,6 +148,7 @@ export const useEquipamentosLogic = () => {
     setEditingEquipment,
     handleSaveEquipment,
     handleDeleteEquipment,
+    handleDeleteAll,
     handleFilterChange,
     handleImportCSV
   };
