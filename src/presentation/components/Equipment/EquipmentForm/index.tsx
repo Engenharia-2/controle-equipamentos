@@ -24,19 +24,6 @@ export const EquipmentForm: React.FC<EquipmentFormProps> = ({ onSubmit, onClose,
         <form onSubmit={handleSubmit} className="equipment-form">
           <div className="form-grid">
             <div className="form-group">
-              <label className="form-label">Nº Pedido *</label>
-              <input 
-                type="number" 
-                name="orderNumber" 
-                className="form-input" 
-                value={formData.orderNumber || ''} 
-                onChange={handleChange} 
-                required 
-                placeholder="Ex: 1234"
-              />
-            </div>
-
-            <div className="form-group">
               <label className="form-label">Nº Série *</label>
               <input 
                 type="text" 

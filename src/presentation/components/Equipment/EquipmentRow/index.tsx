@@ -13,9 +13,13 @@ interface EquipmentRowProps {
 export const EquipmentRow: React.FC<EquipmentRowProps> = ({ equipment, onEdit, onDelete }) => {
   const { getStatusClass } = useEquipmentRowLogic(equipment);
 
+  // Busca o número do pedido na locação ativa vinculada
+  const activeRental = (equipment as any).rentals?.find((r: any) => r.status === 'Ativa');
+  const displayOrderNumber = activeRental?.orderNumber || '-';
+
   return (
     <tr className="equipment-row">
-      <td className="equipment-cell">{equipment.orderNumber}</td>
+      <td className="equipment-cell">{displayOrderNumber}</td>
       <td className="equipment-cell">
         <span className={`status-badge ${getStatusClass()}`}>
           {equipment.status}

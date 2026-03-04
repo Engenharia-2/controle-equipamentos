@@ -73,7 +73,6 @@ const Equipamentos: React.FC = () => {
                 variant="secondary" 
                 onClick={handleDeleteAll}
                 icon={<Trash2 size={18} />}
-                className="btn-danger"
               >
                 Excluir Todos
               </Button>

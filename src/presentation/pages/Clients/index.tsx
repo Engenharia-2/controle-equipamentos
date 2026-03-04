@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { ClientTable } from '../../components/Client/ClientTable';
 import ClientForm from '../../components/Client/ClientForm';
 import { useClients } from '../../hooks/useClients';
+import { useClientImport } from '../../hooks/useClientImport';
 import { Plus, Upload, Trash } from 'lucide-react';
 import { Button } from '../../components/Button';
 import './styles.css';
@@ -14,9 +15,10 @@ const Clients: React.FC = () => {
         setSearchTerm,
         handleDelete,
         handleDeleteAll,
-        handleImportCSV,
-        importProgress
+        fetchClients
     } = useClients();
+
+    const { handleImportCSV, importProgress } = useClientImport(fetchClients);
 
     const [view, setView] = useState<'list' | 'form'>('list');
     const [selectedClientId, setSelectedClientId] = useState<string | undefined>(undefined);

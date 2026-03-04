@@ -7,4 +7,5 @@ export interface Rental {
   monthlyValue: number;
   seller: string;
   status: 'Ativa' | 'Finalizada';
+  orderNumber?: number;
 }

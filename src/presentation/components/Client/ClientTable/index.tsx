@@ -20,8 +20,10 @@ export const ClientTable: React.FC<ClientTableProps> = ({
         <thead className="table-header">
           <tr>
             <th className="header-cell">Nome</th>
+            <th className="header-cell">CNPJ</th>
             <th className="header-cell">Email</th>
             <th className="header-cell">Telefone</th>
+            <th className="header-cell">Endereço</th>
             <th className="header-cell">Ações</th>
           </tr>
         </thead>

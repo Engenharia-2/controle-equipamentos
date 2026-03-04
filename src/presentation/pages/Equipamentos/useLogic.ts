@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { Equipment, EquipmentStatus } from '../../../core/entities/Equipment';
 import { useRepositories } from '../../../shared/contexts/RepositoryContext';
+import { useDebounce } from '../../hooks/useDebounce';
 import Papa from 'papaparse';
 
 export const useEquipamentosLogic = () => {
@@ -14,6 +15,8 @@ export const useEquipamentosLogic = () => {
     serialNumber?: string;
     endMonth?: number;
   }>({});
+  
+  const debouncedFilters = useDebounce(activeFilters, 300);
   const [editingEquipment, setEditingEquipment] = useState<Equipment | null>(null);
   
   const { equipmentRepository } = useRepositories();
@@ -54,7 +57,6 @@ export const useEquipamentosLogic = () => {
 
             const newEquipment: Equipment = {
               id: crypto.randomUUID(),
-              orderNumber,
               equipmentName,
               serialNumber,
               status: 'Disponível',
@@ -134,13 +136,17 @@ export const useEquipamentosLogic = () => {
 
   const filteredEquipments = useMemo(() => {
     return equipments.filter(eq => {
-      if (activeFilters.status && eq.status !== activeFilters.status) return false;
-      if (activeFilters.equipmentName && !eq.equipmentName.toLowerCase().includes(activeFilters.equipmentName.toLowerCase())) return false;
-      if (activeFilters.orderNumber && !String(eq.orderNumber).includes(activeFilters.orderNumber)) return false;
-      if (activeFilters.serialNumber && !eq.serialNumber.toLowerCase().includes(activeFilters.serialNumber.toLowerCase())) return false;
+      if (debouncedFilters.status && eq.status !== debouncedFilters.status) return false;
+      if (debouncedFilters.equipmentName && !eq.equipmentName.toLowerCase().includes(debouncedFilters.equipmentName.toLowerCase())) return false;
+      
+      // Busca o número do pedido na locação ativa vinculada
+      const activeRental = (eq as any).rentals?.find((r: any) => r.status === 'Ativa');
+      if (debouncedFilters.orderNumber && !String(activeRental?.orderNumber || '').includes(debouncedFilters.orderNumber)) return false;
+
+      if (debouncedFilters.serialNumber && !eq.serialNumber.toLowerCase().includes(debouncedFilters.serialNumber.toLowerCase())) return false;
       return true;
     });
-  }, [equipments, activeFilters]);
+  }, [equipments, debouncedFilters]);
 
   return {
     equipments: filteredEquipments,

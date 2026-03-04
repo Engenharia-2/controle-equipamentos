@@ -13,10 +13,14 @@ export const ClientRow: React.FC<ClientRowProps> = ({ client, onEdit, onDelete }
   return (
     <tr className="client-row">
       <td className="client-cell client-name">{client.name}</td>
+      <td className="client-cell client-secondary">{client.cnpj || '-'}</td>
       <td className="client-cell client-secondary">
         {client.emails && client.emails.length > 0 ? client.emails[0] : '-'}
       </td>
       <td className="client-cell client-secondary">{client.phone || '-'}</td>
+      <td className="client-cell client-secondary" style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={client.address}>
+        {client.address || '-'}
+      </td>
       <td className="actions-cell">
         <button
           onClick={() => onEdit(client.id!)}

@@ -3,4 +3,6 @@ export interface Client {
   name: string;
   emails: string[];
   phone: string;
+  cnpj?: string;
+  address?: string;
 }

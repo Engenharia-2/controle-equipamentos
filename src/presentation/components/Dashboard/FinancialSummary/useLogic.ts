@@ -30,11 +30,6 @@ export const useFinancialSummaryLogic = () => {
   const metrics = useMemo(() => {
     const { month, year, equipmentModel } = filters;
 
-    // Filtro de Modelo nos Equipamentos (para potencial)
-    const filteredEquipments = equipmentModel 
-      ? equipments.filter(e => e.equipmentName === equipmentModel)
-      : equipments;
-
     // Função para verificar se uma locação estava ativa no mês/ano filtrado
     const wasActiveInPeriod = (rental: any) => {
       const start = new Date(rental.startDate);
@@ -70,13 +65,9 @@ export const useFinancialSummaryLogic = () => {
       return acc + ((r.monthlyValue / 30) * diffDays);
     }, 0);
 
-    // 5. Potencial Mensal Máximo (Baseado no baseValue do estoque filtrado)
-    const totalPotentialMonthlyRevenue = filteredEquipments.reduce((acc, eq) => acc + (eq.baseValue || 0), 0);
-
     return {
       monthlyActiveRevenue,
       averageMonthlyTicket,
-      totalPotentialMonthlyRevenue,
       totalContractedValue,
       activeCount
     };

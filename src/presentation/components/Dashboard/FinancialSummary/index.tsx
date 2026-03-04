@@ -53,17 +53,6 @@ export const FinancialSummary: React.FC = () => {
         <div className={styles.cardValue}>{formatCurrency(metrics.totalContractedValue)}</div>
         <div className={styles.cardSubtitle}>Soma total de todos os contratos</div>
       </div>
-
-      {/* <div className={styles.financialCard}>
-        <div className={styles.cardHeader}>
-          <div className={styles.cardIcon} style={{ backgroundColor: 'rgba(117, 117, 117, 0.15)', color: '#757575' }}>
-            <PieChart size={20} />
-          </div>
-          <div className={styles.cardTitle}>Potencial Mensal Máximo</div>
-        </div>
-        <div className={styles.cardValue}>{formatCurrency(metrics.totalPotentialMonthlyRevenue)}</div>
-        <div className={styles.cardSubtitle}>Capacidade total do estoque</div>
-      </div> */}
     </div>
   );
 };

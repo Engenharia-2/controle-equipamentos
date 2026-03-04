@@ -9,7 +9,6 @@ interface UseEquipmentFormLogicProps {
 
 export const useEquipmentFormLogic = ({ onSubmit, onClose, initialData }: UseEquipmentFormLogicProps) => {
   const [formData, setFormData] = useState<Omit<Equipment, 'id' | 'remainingDays'>>({
-    orderNumber: 0,
     client: '-',
     status: 'Disponível',
     equipmentName: '',
@@ -34,7 +33,7 @@ export const useEquipmentFormLogic = ({ onSubmit, onClose, initialData }: UseEqu
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === 'orderNumber' || name === 'allocationValue'
+      [name]: name === 'allocationValue'
         ? Number(value) 
         : value,
     }));

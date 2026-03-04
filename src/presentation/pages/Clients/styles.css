@@ -30,6 +30,17 @@
     gap: 12px;
 }
 
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 2rem;
+    border: 1px dashed var(--border-color);
+    border-radius: 8px;
+}
+
 @media (max-width: 768px) {
     .clients-header {
         flex-direction: column;

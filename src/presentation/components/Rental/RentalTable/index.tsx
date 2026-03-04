@@ -1,29 +1,27 @@
 import React from 'react';
 import { RentalRow } from '../RentalRow';
+import type { RentalWithDetails } from '../../../hooks/useRentals';
 import './styles.css';
 
 interface RentalTableProps {
-  rentals: any[];
-  onFinish: (rental: any) => void;
-  onEdit: (rental: any) => void;
+  rentals: RentalWithDetails[];
+  onFinish: (rental: RentalWithDetails) => void;
+  onEdit: (rental: RentalWithDetails) => void;
   onDelete: (id: string) => void;
-  formatDate: (date: string) => string;
-  formatCurrency: (value: number) => string;
 }
 
 export const RentalTable: React.FC<RentalTableProps> = ({ 
   rentals, 
   onFinish, 
   onEdit,
-  onDelete,
-  formatDate, 
-  formatCurrency 
+  onDelete
 }) => {
   return (
     <div className="table-container">
       <table className="rental-table">
         <thead className="table-header">
           <tr>
+            <th className="header-cell">Pedido</th>
             <th className="header-cell">Cliente</th>
             <th className="header-cell">Equipamento</th>
             <th className="header-cell">Série</th>
@@ -43,8 +41,6 @@ export const RentalTable: React.FC<RentalTableProps> = ({
               onFinish={onFinish}
               onEdit={onEdit}
               onDelete={onDelete}
-              formatDate={formatDate}
-              formatCurrency={formatCurrency}
             />
           ))}
         </tbody>

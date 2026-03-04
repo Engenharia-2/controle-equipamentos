@@ -5,6 +5,7 @@ import { useRepositories } from '../../../../shared/contexts/RepositoryContext';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import type { ChartData, ChartOptions } from 'chart.js';
 import { useDashboard } from '../../../contexts/DashboardContext';
+import { calculateRentalStatus } from '../../../../shared/utils/rentalStatus';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -56,29 +57,36 @@ export const useEquipmentStatusLogic = () => {
       'Expirado': 0
     };
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     filteredEquipments.forEach(eq => {
-      // Busca se houve locação ativa para este equipamento específico no mês selecionado
-      const rentalInPeriod = allRentals.find(r => {
-        // Ajuste para lidar com o objeto vindo da API
+      const activeRental = allRentals.find(r => {
         const rEquipmentId = typeof (r as any).equipment === 'object' ? (r as any).equipment.id : (r as any).equipment || r.equipmentId;
-        if (rEquipmentId !== eq.id) return false;
-        
-        const start = new Date(r.startDate);
-        const end = new Date(r.endDate);
-        return start <= targetEnd && end >= targetStart;
+        return rEquipmentId === eq.id && r.status === 'Ativa' && new Date(r.startDate) <= targetEnd;
       });
 
-      if (rentalInPeriod) {
-        const end = new Date(rentalInPeriod.endDate);
-        const today = new Date(); // Aqui poderíamos usar targetEnd se quiséssemos o status "naquele dia"
-        
-        if (targetEnd > end) {
+      if (activeRental) {
+        // Usa a data de referência (hoje ou fim do mês filtrado)
+        const referenceDate = targetEnd > today ? targetEnd : today;
+        const { status } = calculateRentalStatus(activeRental.startDate, activeRental.endDate, referenceDate);
+
+        if (status === 'Expirado') {
           statusCounts['Expirado']++;
         } else {
           statusCounts['Locação']++;
         }
       } else {
-        statusCounts['Disponível']++;
+        const wasRentedInPeriod = allRentals.some(r => {
+          const rEquipmentId = typeof (r as any).equipment === 'object' ? (r as any).equipment.id : (r as any).equipment || r.equipmentId;
+          return rEquipmentId === eq.id && r.status === 'Finalizada' && new Date(r.startDate) <= targetEnd && new Date(r.endDate) >= targetStart;
+        });
+
+        if (wasRentedInPeriod) {
+          statusCounts['Locação']++;
+        } else {
+          statusCounts['Disponível']++;
+        }
       }
     });
 

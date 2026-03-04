@@ -1,5 +1,5 @@
 import React from 'react';
-import { useClients } from '../../../hooks/useClients';
+import { useClientFormLogic } from './useLogic';
 import './styles.css';
 
 interface ClientFormProps {
@@ -11,40 +11,13 @@ interface ClientFormProps {
 const ClientForm: React.FC<ClientFormProps> = ({ clientId, onCancel, onSuccess }) => {
   const {
     formData,
-    setFormData,
-    formLoading: loading,
-    handleSave,
-  } = useClients(clientId);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleEmailChange = (index: number, value: string) => {
-    const newEmails = [...formData.emails];
-    newEmails[index] = value;
-    setFormData((prev) => ({ ...prev, emails: newEmails }));
-  };
-
-  const addEmailField = () => {
-    setFormData((prev) => ({ ...prev, emails: [...prev.emails, ''] }));
-  };
-
-  const removeEmailField = (index: number) => {
-    if (formData.emails.length > 1) {
-      const newEmails = formData.emails.filter((_, i) => i !== index);
-      setFormData((prev) => ({ ...prev, emails: newEmails }));
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const success = await handleSave();
-    if (success) {
-      onSuccess();
-    }
-  };
+    loading,
+    handleChange,
+    handleEmailChange,
+    addEmailField,
+    removeEmailField,
+    handleSubmit
+  } = useClientFormLogic({ clientId, onSuccess });
 
   return (
     <div className="container">
@@ -54,65 +27,98 @@ const ClientForm: React.FC<ClientFormProps> = ({ clientId, onCancel, onSuccess }
 
       <div className="form-card">
         <form onSubmit={handleSubmit} className="form">
-          <div className="form-group">
-            <label className="form-label">Nome *</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              className="form-input"
-            />
-          </div>
+          <div className="form-grid">
+            {/* Nome - Full Width */}
+            <div className="form-group full-width">
+              <label className="form-label">Nome *</label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                className="form-input"
+                placeholder="Nome completo do cliente ou razão social"
+              />
+            </div>
 
-          <div className="form-group">
-            <label className="form-label">E-mails</label>
-            {formData.emails.map((email, index) => (
-              <div key={index} className="email-input-group" style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => handleEmailChange(index, e.target.value)}
-                  placeholder="exemplo@email.com"
-                  className="form-input"
-                  style={{ flex: 1 }}
-                />
-                {formData.emails.length > 1 && (
-                  <button 
-                    type="button" 
-                    onClick={() => removeEmailField(index)}
-                    className="btn-remove-email"
-                    title="Remover e-mail"
-                    style={{ padding: '0 12px', cursor: 'pointer', backgroundColor: '#ff4d4f', color: 'white', border: 'none', borderRadius: '4px' }}
-                  >
-                    X
-                  </button>
-                )}
+            {/* CNPJ - Ocupa a coluna 1 */}
+            <div className="form-group">
+              <label className="form-label">CNPJ/CPF *</label>
+              <input
+                type="text"
+                name="cnpj"
+                value={formData.cnpj || ''}
+                onChange={handleChange}
+                required
+                placeholder="00.000.000/0000-00"
+                className="form-input"
+              />
+            </div>
+
+            {/* Telefone - Ocupa a coluna 2 */}
+            <div className="form-group">
+              <label className="form-label">Telefone</label>
+              <input
+                type="text"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="(00) 00000-0000"
+                className="form-input"
+              />
+            </div>
+
+            {/* Endereço - Full Width */}
+            <div className="form-group full-width">
+              <label className="form-label">Endereço Completo *</label>
+              <textarea
+                name="address"
+                value={formData.address || ''}
+                onChange={handleChange}
+                required
+                placeholder="Rua, Número, Bairro, Cidade - UF, CEP"
+                className="form-input address-textarea"
+              />
+            </div>
+
+            {/* E-mails - Full Width */}
+            <div className="form-group full-width">
+              <label className="form-label">E-mails de Contato</label>
+              {formData.emails.map((email, index) => (
+                <div key={index} className="email-input-group">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => handleEmailChange(index, e.target.value)}
+                    placeholder="exemplo@email.com"
+                    className="form-input email-input"
+                  />
+                  {formData.emails.length > 1 && (
+                    <button 
+                      type="button" 
+                      onClick={() => removeEmailField(index)}
+                      className="btn-remove-email"
+                      title="Remover e-mail"
+                    >
+                      &times;
+                    </button>
+                  )}
+                </div>
+              ))}
+              <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                <button 
+                  type="button" 
+                  onClick={addEmailField}
+                  className="btn-add-email"
+                >
+                  + Adicionar outro e-mail
+                </button>
               </div>
-            ))}
-            <button 
-              type="button" 
-              onClick={addEmailField}
-              className="btn-add-email"
-              style={{ marginTop: '4px', cursor: 'pointer', backgroundColor: '#1890ff', color: 'white', border: 'none', borderRadius: '4px', padding: '4px 12px' }}
-            >
-              + Adicionar E-mail
-            </button>
+            </div>
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Telefone</label>
-            <input
-              type="text"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              className="form-input"
-            />
-          </div>
-
-          <div className="form-actions" style={{ marginTop: '24px' }}>
+          <div className="form-actions">
             <button
               type="button"
               onClick={onCancel}

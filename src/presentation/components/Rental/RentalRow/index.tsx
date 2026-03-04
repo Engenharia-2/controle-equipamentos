@@ -1,29 +1,28 @@
 import React from 'react';
 import { CheckCircle, Edit, Trash2 } from 'lucide-react';
 import { useRentalRowLogic } from './useLogic';
+import { formatDate, formatCurrency } from '../../../../shared/utils/formatters';
+import type { RentalWithDetails } from '../../../hooks/useRentals';
 import './styles.css';
 
 interface RentalRowProps {
-  rental: any;
-  onFinish: (rental: any) => void;
-  onEdit: (rental: any) => void;
+  rental: RentalWithDetails;
+  onFinish: (rental: RentalWithDetails) => void;
+  onEdit: (rental: RentalWithDetails) => void;
   onDelete: (id: string) => void;
-  formatDate: (date: string) => string;
-  formatCurrency: (value: number) => string;
 }
 
 export const RentalRow: React.FC<RentalRowProps> = ({ 
   rental, 
   onFinish, 
   onEdit,
-  onDelete,
-  formatDate, 
-  formatCurrency 
+  onDelete
 }) => {
   const { statusInfo } = useRentalRowLogic(rental.startDate, rental.endDate);
 
   return (
     <tr className="rental-row">
+      <td className="rental-cell">{rental.orderNumber || '-'}</td>
       <td className="rental-cell rental-name">{rental.clientName}</td>
       <td className="rental-cell">{rental.equipmentName}</td>
       <td className="rental-cell rental-secondary">{rental.serialNumber}</td>

@@ -3,6 +3,7 @@ import { RentalForm } from '../../components/Rental/RentalForm';
 import { RentalTable } from '../../components/Rental/RentalTable';
 import { RentalFilters } from '../../components/Rental/RentalFilters';
 import { useRentals } from '../../hooks/useRentals';
+import { useRentalFilters } from '../../hooks/useRentalFilters';
 import { Plus } from 'lucide-react';
 import { Button } from '../../components/Button';
 import './styles.css';
@@ -16,11 +17,10 @@ const Rentals: React.FC = () => {
     setEditingRental,
     handleFinishRental, 
     handleDeleteRental,
-    handleFilterChange,
-    formatCurrency, 
-    formatDate,
     refresh
   } = useRentals();
+
+  const { filteredRentals, handleFilterChange } = useRentalFilters(rentals);
 
   const handleSuccess = () => {
     setView('list');
@@ -65,18 +65,16 @@ const Rentals: React.FC = () => {
             
             {loading ? (
               <div className="loading" style={{ textAlign: 'center', padding: '3rem', color: 'var(--sidebar-text)' }}>Carregando locações...</div>
-            ) : rentals.length === 0 ? (
+            ) : filteredRentals.length === 0 ? (
               <div className="empty-state" style={{ textAlign: 'center', padding: '3rem', color: 'var(--sidebar-text)', backgroundColor: 'var(--card-bg)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                 <p>Nenhuma locação encontrada com os filtros atuais.</p>
               </div>
             ) : (
               <RentalTable 
-                rentals={rentals}
+                rentals={filteredRentals}
                 onFinish={handleFinishRental}
                 onDelete={handleDeleteRental}
                 onEdit={handleEdit}
-                formatDate={formatDate}
-                formatCurrency={formatCurrency}
               />
             )}
           </main>

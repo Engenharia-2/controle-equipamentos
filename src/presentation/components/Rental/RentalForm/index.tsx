@@ -16,19 +16,18 @@ export const RentalForm: React.FC<RentalFormProps> = ({ onSuccess, onCancel, edi
     loading, 
     handleChange, 
     handleSubmit,
-    // ... restante desestruturado
     clientSearch,
-    setClientSearch,
-    filteredClients,
-    selectClient,
+    handleClientSearchChange,
     showClientResults,
     setShowClientResults,
+    filteredClients,
+    selectClient,
     equipmentSearch,
-    setEquipmentSearch,
+    handleEquipmentSearchChange,
+    showEquipmentResults,
+    setShowEquipmentResults,
     filteredEquipments,
     selectEquipment,
-    showEquipmentResults,
-    setShowEquipmentResults
   } = useRentalFormLogic(onSuccess, onCancel, editingRental);
 
   if (loading) return <div className="loading">Carregando dados...</div>;
@@ -53,10 +52,7 @@ export const RentalForm: React.FC<RentalFormProps> = ({ onSuccess, onCancel, edi
               className="form-input"
               placeholder="Digite o nome do cliente para buscar..."
               value={clientSearch}
-              onChange={(e) => {
-                setClientSearch(e.target.value);
-                setShowClientResults(true);
-              }}
+              onChange={(e) => handleClientSearchChange(e.target.value)}
               onFocus={() => setShowClientResults(true)}
               autoComplete="off"
             />
@@ -84,10 +80,7 @@ export const RentalForm: React.FC<RentalFormProps> = ({ onSuccess, onCancel, edi
               className="form-input"
               placeholder="Busque por nome ou número de série..."
               value={equipmentSearch}
-              onChange={(e) => {
-                setEquipmentSearch(e.target.value);
-                setShowEquipmentResults(true);
-              }}
+              onChange={(e) => handleEquipmentSearchChange(e.target.value)}
               onFocus={() => setShowEquipmentResults(true)}
               autoComplete="off"
             />
@@ -135,6 +128,19 @@ export const RentalForm: React.FC<RentalFormProps> = ({ onSuccess, onCancel, edi
           </div>
 
           <div className="form-grid">
+            <div className="form-group">
+              <label className="form-label">Nº Pedido *</label>
+              <input 
+                type="number" 
+                name="orderNumber" 
+                className="form-input" 
+                value={formData.orderNumber || ''} 
+                onChange={handleChange} 
+                required 
+                placeholder="Ex: 1234"
+              />
+            </div>
+
             <div className="form-group">
               <label className="form-label">Valor Mensal (R$) *</label>
               <input 

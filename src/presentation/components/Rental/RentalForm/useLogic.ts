@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import type { ChangeEvent, FormEvent } from 'react';
 import type { Rental } from '../../../../core/entities/Rental';
 import type { Client } from '../../../../core/entities/Client';
 import type { Equipment } from '../../../../core/entities/Equipment';
@@ -9,13 +10,12 @@ interface RentalFormData extends Omit<Rental, 'id' | 'status'> {}
 export const useRentalFormLogic = (
   onSuccess: () => void, 
   onCancel: () => void,
-  editingRental?: any
+  editingRental?: Rental & { clientName?: string; equipmentName?: string; serialNumber?: string; client?: any; equipment?: any }
 ) => {
   const [allClients, setAllClients] = useState<Client[]>([]);
   const [allEquipments, setAllEquipments] = useState<Equipment[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // Estados para busca/filtro
   const [clientSearch, setClientSearch] = useState('');
   const [equipmentSearch, setEquipmentSearch] = useState('');
   const [showClientResults, setShowClientResults] = useState(false);
@@ -28,6 +28,7 @@ export const useRentalFormLogic = (
     endDate: '',
     monthlyValue: 0,
     seller: '',
+    orderNumber: 0,
   });
 
   const { rentalRepository, clientRepository, equipmentRepository } = useRepositories();
@@ -42,15 +43,15 @@ export const useRentalFormLogic = (
         
         setAllClients(clientsData);
         
-        // Se estiver editando, permite que o equipamento atual apareça na lista mesmo que status seja 'Locação'
+        const editingEqId = editingRental?.equipmentId || (typeof editingRental?.equipment === 'string' ? editingRental.equipment : editingRental?.equipment?.id);
+
         setAllEquipments(equipmentsData.filter(eq => 
-          eq.status === 'Disponível' || (editingRental && eq.id === (typeof editingRental.equipment === 'string' ? editingRental.equipment : editingRental.equipment?.id))
+          eq.status === 'Disponível' || (editingRental && eq.id === editingEqId)
         ));
 
-        // Preencher dados de edição se existirem
         if (editingRental) {
-          const clientId = typeof editingRental.client === 'string' ? editingRental.client : editingRental.client?.id;
-          const equipmentId = typeof editingRental.equipment === 'string' ? editingRental.equipment : editingRental.equipment?.id;
+          const clientId = editingRental.clientId || (typeof editingRental.client === 'string' ? editingRental.client : editingRental.client?.id);
+          const equipmentId = editingRental.equipmentId || (typeof editingRental.equipment === 'string' ? editingRental.equipment : editingRental.equipment?.id);
           
           setFormData({
             clientId: clientId || '',
@@ -59,10 +60,13 @@ export const useRentalFormLogic = (
             endDate: editingRental.endDate,
             monthlyValue: editingRental.monthlyValue,
             seller: editingRental.seller,
+            orderNumber: editingRental.orderNumber || 0,
           });
 
           setClientSearch(editingRental.clientName || editingRental.client?.name || '');
-          setEquipmentSearch(`${editingRental.equipmentName || editingRental.equipment?.equipmentName} (S/N: ${editingRental.serialNumber || editingRental.equipment?.serialNumber})`);
+          const eqName = editingRental.equipmentName || editingRental.equipment?.equipmentName;
+          const eqSn = editingRental.serialNumber || editingRental.equipment?.serialNumber;
+          setEquipmentSearch(`${eqName} (S/N: ${eqSn})`);
         }
       } catch (error) {
         console.error('Erro ao carregar dados para locação:', error);
@@ -73,31 +77,31 @@ export const useRentalFormLogic = (
     loadData();
   }, [clientRepository, equipmentRepository, editingRental]);
 
-  // Filtragem de Clientes
   const filteredClients = useMemo(() => {
     const query = clientSearch.toLowerCase().trim();
     if (!query || (formData.clientId && clientSearch === allClients.find(c => c.id === formData.clientId)?.name)) {
       return [];
     }
-    return allClients
-      .filter(c => c.name.toLowerCase().includes(query))
-      .slice(0, 10);
+    return allClients.filter(c => c.name.toLowerCase().includes(query)).slice(0, 10);
   }, [allClients, clientSearch, formData.clientId]);
 
-  // Filtragem de Equipamentos
   const filteredEquipments = useMemo(() => {
     const query = equipmentSearch.toLowerCase().trim();
     if (!query) return [];
-
-    return allEquipments
-      .filter(e => {
-        const nameMatch = (e.equipmentName || '').toLowerCase().includes(query);
-        const serialStr = String(e.serialNumber || '').toLowerCase();
-        const serialMatch = serialStr.includes(query);
-        return nameMatch || serialMatch;
-      })
-      .slice(0, 10);
+    return allEquipments.filter(e => 
+      e.equipmentName.toLowerCase().includes(query) || e.serialNumber.toLowerCase().includes(query)
+    ).slice(0, 10);
   }, [allEquipments, equipmentSearch]);
+
+  const handleClientSearchChange = (value: string) => {
+    setClientSearch(value);
+    setShowClientResults(true);
+  };
+
+  const handleEquipmentSearchChange = (value: string) => {
+    setEquipmentSearch(value);
+    setShowEquipmentResults(true);
+  };
 
   const selectClient = (client: Client) => {
     setFormData(prev => ({ ...prev, clientId: client.id! }));
@@ -111,15 +115,15 @@ export const useRentalFormLogic = (
     setShowEquipmentResults(false);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'monthlyValue' ? Number(value) : value
+      [name]: (name === 'monthlyValue' || name === 'orderNumber') ? Number(value) : value
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!formData.clientId || !formData.equipmentId) {
       alert('Por favor, selecione um cliente e um equipamento das listas de sugestão.');
@@ -128,22 +132,22 @@ export const useRentalFormLogic = (
 
     try {
       const rentalToSave: any = {
-        client: formData.clientId,
-        equipment: formData.equipmentId,
         startDate: formData.startDate,
         endDate: formData.endDate,
         monthlyValue: formData.monthlyValue,
         seller: formData.seller,
-        status: 'Ativa'
+        orderNumber: formData.orderNumber,
+        status: 'Ativa',
+        client: formData.clientId, // TypeORM aceita o ID direto na propriedade da relação
+        equipment: formData.equipmentId
       };
 
-      if (editingRental) {
+      if (editingRental?.id) {
         rentalToSave.id = editingRental.id;
         await rentalRepository.update(rentalToSave);
       } else {
         await rentalRepository.save(rentalToSave);
       }
-
       onSuccess();
     } catch (error) {
       console.error('Erro ao processar locação:', error);
@@ -157,19 +161,17 @@ export const useRentalFormLogic = (
     handleChange,
     handleSubmit,
     onCancel,
-    // Busca de Clientes
     clientSearch,
-    setClientSearch,
-    filteredClients,
-    selectClient,
+    handleClientSearchChange,
     showClientResults,
     setShowClientResults,
-    // Busca de Equipamentos
+    filteredClients,
+    selectClient,
     equipmentSearch,
-    setEquipmentSearch,
+    handleEquipmentSearchChange,
+    showEquipmentResults,
+    setShowEquipmentResults,
     filteredEquipments,
     selectEquipment,
-    showEquipmentResults,
-    setShowEquipmentResults
   };
 };
